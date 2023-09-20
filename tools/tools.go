@@ -8,6 +8,5 @@ package tools
 
 import (
 	_ "github.com/bufbuild/buf/cmd/buf"
-	_ "github.com/lyft/protoc-gen-star"
 	_ "gotest.tools/gotestsum"
 )

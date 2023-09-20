@@ -3,6 +3,7 @@
 
 package jsonschema
 
+//nolint:govet
 type ObjectSchema struct {
 	GenericSchema
 	MaxProperties        *uint64           `json:"maxProperties,omitempty"`

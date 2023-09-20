@@ -3,7 +3,7 @@ include tools/tools.mk
 PROTOVALIDATE_MODULE := "buf.build/bufbuild/protovalidate"
 PROTOS_DIR := "protos"
 GENERATED_DIR := "gen"
-TESTDATA_DIR = "internal/test/testdata"
+TEST_DIR := "internal/test"
 
 .PHONY: build
 build: deps generate lint test compile install
@@ -21,7 +21,7 @@ generate: $(BUF) generate-buf generate-testdata
 
 .PHONY: install
 install:
-	@ go install cmd/protoc-gen-jsonschema
+	@ go install ./cmd/protoc-gen-jsonschema
 
 .PHONY: lint
 lint: $(BUF) $(GOLANGCI_LINT)
@@ -40,11 +40,5 @@ generate-buf: $(BUF)
 	@ rm -rf $(PROTOS_DIR)
 
 .PHONY: generate-testdata
-generate-testdata: $(BUF) export-test-deps
-	@ cd tools && $(BUF) generate --template=test.gen.yaml ../$(TESTDATA_DIR)
-	@ rm -rf $(TESTDATA_DIR)/buf
-
-.PHONY: export-test-deps
-export-test-deps: $(BUF)
-	@ rm -rf $(TESTDATA_DIR)/buf
-	@ $(BUF) export $(PROTOVALIDATE_MODULE) -o $(TESTDATA_DIR)
+generate-testdata: $(BUF)
+	@ cd $(TEST_DIR) && $(BUF) generate .

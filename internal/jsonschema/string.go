@@ -15,6 +15,7 @@ const (
 	StringFormatURIReference StringFormat = "uri-reference"
 )
 
+//nolint:govet
 type StringSchema struct {
 	GenericSchema
 	Const     *string      `json:"const,omitempty"`

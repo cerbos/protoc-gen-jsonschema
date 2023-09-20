@@ -4,19 +4,19 @@
 package module
 
 import (
-	"github.com/cerbos/cerbos/hack/tools/protoc-gen-jsonschema/jsonschema"
-	"github.com/envoyproxy/protoc-gen-validate/validate"
 	pgs "github.com/lyft/protoc-gen-star/v2"
+
+	"github.com/cerbos/protoc-gen-jsonschema/gen/pb/buf/validate"
+	"github.com/cerbos/protoc-gen-jsonschema/internal/jsonschema"
 )
 
-func (m *Module) schemaForMap(value pgs.FieldTypeElem, rules *validate.MapRules) (jsonschema.Schema, bool) {
-	required := false
+func (m *Module) schemaForMap(value pgs.FieldTypeElem, rules *validate.MapRules) jsonschema.Schema {
 	schema := jsonschema.NewObjectSchema()
 	schema.AdditionalProperties, _ = m.schemaForElement(value, rules.GetValues())
 
 	if rules != nil {
 		if rules.GetKeys().GetString_() != nil {
-			schema.PropertyNames, _ = m.schemaForString(rules.GetKeys().GetString_())
+			schema.PropertyNames, _ = m.schemaForString(rules.GetKeys().GetString_(), false) // TODO
 		}
 
 		if rules.MaxPairs != nil {
@@ -25,15 +25,13 @@ func (m *Module) schemaForMap(value pgs.FieldTypeElem, rules *validate.MapRules)
 
 		if rules.MinPairs != nil {
 			schema.MinProperties = jsonschema.Size(rules.GetMinPairs())
-			required = !rules.GetIgnoreEmpty()
 		}
 	}
 
-	return schema, required
+	return schema
 }
 
-func (m *Module) schemaForRepeated(item pgs.FieldTypeElem, rules *validate.RepeatedRules) (jsonschema.Schema, bool) {
-	required := false
+func (m *Module) schemaForRepeated(item pgs.FieldTypeElem, rules *validate.RepeatedRules) jsonschema.Schema {
 	schema := jsonschema.NewArraySchema()
 	schema.Items, _ = m.schemaForElement(item, rules.GetItems())
 
@@ -44,7 +42,6 @@ func (m *Module) schemaForRepeated(item pgs.FieldTypeElem, rules *validate.Repea
 
 		if rules.MinItems != nil {
 			schema.MinItems = jsonschema.Size(rules.GetMinItems())
-			required = !rules.GetIgnoreEmpty()
 		}
 
 		if rules.Unique != nil {
@@ -52,17 +49,17 @@ func (m *Module) schemaForRepeated(item pgs.FieldTypeElem, rules *validate.Repea
 		}
 	}
 
-	return schema, required
+	return schema
 }
 
-func (m *Module) schemaForElement(element pgs.FieldTypeElem, rules *validate.FieldRules) (jsonschema.Schema, bool) {
+func (m *Module) schemaForElement(element pgs.FieldTypeElem, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
 	if element.IsEmbed() {
-		return m.schemaForEmbed(element.Embed(), rules)
+		return m.schemaForEmbed(element.Embed(), constraints)
 	}
 
 	if element.IsEnum() {
-		return m.schemaForEnum(element.Enum(), rules.GetEnum())
+		return m.schemaForEnum(element.Enum(), constraints.GetEnum())
 	}
 
-	return m.schemaForScalar(element.ProtoType(), rules)
+	return m.schemaForScalar(element.ProtoType(), constraints)
 }
