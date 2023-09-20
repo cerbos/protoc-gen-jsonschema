@@ -1,0 +1,113 @@
+---
+linters-settings:
+  exhaustive:
+    default-signifies-exhaustive: true
+
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/cerbos/protoc-gen-jsonschema)
+
+  gofumpt:
+    extra-rules: true
+
+  govet:
+    enable-all: true
+    disable:
+      - shadow
+
+  nolintlint:
+    allow-unused: false
+    allow-leading-space: false
+    require-specific: true
+
+  tagliatelle:
+    case:
+      rules:
+        json: goCamel
+        yaml: goCamel
+        xml: goCamel
+        bson: goCamel
+
+linters:
+  enable:
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - dupl
+    - durationcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - forbidigo
+    - forcetypeassert
+    - gci
+    - goconst
+    - gocritic
+    - godot
+    - gofumpt
+    - goimports
+    - gomnd
+    - gomoddirectives
+    - gosec
+    - govet
+    - importas
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nilerr
+    - noctx
+    - nolintlint
+    - prealloc
+    - predeclared
+    - promlinter
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - tagliatelle
+    - tenv
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - wastedassign
+    - whitespace
+  disable:
+    - cyclop
+    - depguard
+    - dogsled
+    - exhaustivestruct
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - gocyclo
+    - godox
+    - goerr113
+    - gofmt
+    - goheader
+    - golint
+    - gomodguard
+    - goprintffuncname
+    - interfacer
+    - lll
+    - maligned
+    - nlreturn
+    - paralleltest
+    - stylecheck
+    - testpackage
+    - wrapcheck
+    - wsl
+
+issues:
+  max-same-issues: 30
+
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - forcetypeassert
+        - goconst
+        - gomnd
+        - govet
