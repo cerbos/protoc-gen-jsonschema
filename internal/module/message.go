@@ -79,7 +79,7 @@ func (m *Module) schemaForEmbed(embed pgs.Message, constraints *validate.FieldCo
 		return m.schemaForWellKnownType(embed.WellKnownType(), constraints)
 	}
 
-	return m.schemaForMessage(embed), constraints.Required
+	return m.schemaForMessage(embed), false
 }
 
 func (m *Module) schemaForMessage(message pgs.Message) jsonschema.Schema {
@@ -93,7 +93,7 @@ func (m *Module) schemaForOneOf(oneOf pgs.OneOf) jsonschema.NonTrivialSchema {
 	_, err := oneOf.Extension(validate.E_Oneof, &constraint)
 	m.CheckErr(err, "unable to read required option from oneof")
 
-	if !*constraint.Required {
+	if constraint.Required != nil && !*constraint.Required {
 		return nil
 	}
 
