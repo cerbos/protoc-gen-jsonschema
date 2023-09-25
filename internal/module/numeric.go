@@ -6,10 +6,11 @@ package module
 import (
 	"encoding/json"
 
-	"github.com/cerbos/cerbos/hack/tools/protoc-gen-jsonschema/jsonschema"
-	"github.com/envoyproxy/protoc-gen-validate/validate"
 	pgs "github.com/lyft/protoc-gen-star/v2"
 	"google.golang.org/protobuf/proto"
+
+	"github.com/cerbos/protoc-gen-jsonschema/gen/pb/buf/validate"
+	"github.com/cerbos/protoc-gen-jsonschema/internal/jsonschema"
 )
 
 const (
@@ -17,6 +18,7 @@ const (
 	unsignedDecimalString = `^(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$`
 )
 
+//nolint:tagliatelle
 type numericRules struct {
 	Const       jsonschema.Number   `json:"const,omitempty"`
 	Lt          jsonschema.Number   `json:"lt,omitempty"`
@@ -28,12 +30,13 @@ type numericRules struct {
 	IgnoreEmpty bool                `json:"ignore_empty,omitempty"`
 }
 
-func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, fieldRules *validate.FieldRules) (jsonschema.Schema, bool) {
+func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
 	required := false
 	value := m.valueSchemaForNumericScalar(numeric)
 	schemas := []jsonschema.NonTrivialSchema{m.stringValueSchemaForNumericScalar(numeric, value)}
-	rules := m.numericRules(numeric, fieldRules)
+	rules := m.numericRules(numeric, constraints)
 
+	//nolint:nestif
 	if rules != nil {
 		if rules.Const != nil {
 			value.Const = rules.Const
@@ -123,7 +126,7 @@ func (m *Module) stringValueSchemaForNumericScalar(numeric pgs.ProtoType, value 
 	return jsonschema.OneOf(value, stringValue)
 }
 
-func (m *Module) numericRules(numeric pgs.ProtoType, fieldRules *validate.FieldRules) *numericRules {
+func (m *Module) numericRules(numeric pgs.ProtoType, fieldRules *validate.FieldConstraints) *numericRules {
 	var source proto.Message
 
 	switch numeric {

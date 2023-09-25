@@ -1,0 +1,97 @@
+// Copyright 2021-2023 Zenauth Ltd.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package testproto;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/cerbos/protoc-gen-jsonschema/test/testproto;testproto";
+
+message BoolRulesTest {
+  bool bool_field = 1 [(buf.validate.field).bool = {const: true}];
+}
+
+message ByteRulesTest {
+  bytes byte_field = 1 [(buf.validate.field).bytes = {
+    min_len: 1,
+    max_len: 1048576
+  }];
+}
+
+enum DummyEnum {
+  DUMMYENUM_UNSPECIFIED = 0;
+  DUMMYENUM_UNSET = 1;
+  DUMMYENUM_SET = 2;
+}
+
+message EnumRulesTest {
+  DummyEnum enum_field = 1 [(buf.validate.field).enum = {
+    in: [
+      0,
+      1,
+      2
+    ]
+  }];
+}
+
+message FieldConstraintTest {
+  string string_field = 1 [(buf.validate.field) = {
+    required: true,
+    ignore_empty: false
+  }];
+}
+
+message MapRulesTest {
+  map<string, DummyEnum> map_field = 1 [(buf.validate.field).map = {
+    min_pairs: 1,
+    keys: {
+      string: {min_len: 1}
+    }
+  }];
+  map<string, google.protobuf.Value> attr = 2;
+}
+
+message NoValidationTest {
+  string no_validation_field = 1;
+}
+
+message OneOfRulesTest {
+  oneof oneof_field {
+    option (buf.validate.oneof).required = true;
+    BoolRulesTest bool_field = 1;
+    StringRulesTest string_field = 2;
+  }
+}
+
+message RepeatedRulesTest {
+  repeated string repeated_field = 1 [(buf.validate.field).repeated = {
+    min_items: 1,
+    unique: true,
+    items {
+      string {min_len: 1}
+    }
+  }];
+}
+
+message StringRulesTest {
+  string string_field = 1 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 5,
+    pattern: "^[[:word:]]*$"
+  }];
+}
+
+message TimestampRulesTest {
+  google.protobuf.Timestamp timestamp_field = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).timestamp.lt_now = true
+  ];
+}
+
+message Uint32RulesTest {
+  uint32 uint32_field = 1 [(buf.validate.field).uint32 = {lte: 10}];
+}

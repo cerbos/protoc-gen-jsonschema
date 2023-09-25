@@ -1,8 +1,0 @@
----
-version: v1
-plugins:
-  - name: debug
-    out: ../internal/test/testdata
-    opt:
-    - ../internal/test/testdata
-    path: ["go", "run", "github.com/lyft/protoc-gen-star/protoc-gen-debug"]

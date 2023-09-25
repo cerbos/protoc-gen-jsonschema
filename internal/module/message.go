@@ -6,9 +6,10 @@ package module
 import (
 	"fmt"
 
-	"github.com/cerbos/cerbos/hack/tools/protoc-gen-jsonschema/jsonschema"
-	"github.com/envoyproxy/protoc-gen-validate/validate"
 	pgs "github.com/lyft/protoc-gen-star/v2"
+
+	"github.com/cerbos/protoc-gen-jsonschema/gen/pb/buf/validate"
+	"github.com/cerbos/protoc-gen-jsonschema/internal/jsonschema"
 )
 
 func (m *Module) defineMessage(message pgs.Message) jsonschema.NonTrivialSchema {
@@ -47,51 +48,47 @@ func (m *Module) schemaForField(field pgs.Field) (jsonschema.Schema, bool) {
 	m.Push(fmt.Sprintf("field:%s", field.Name()))
 	defer m.Pop()
 
-	rules := &validate.FieldRules{}
-	_, err := field.Extension(validate.E_Rules, rules)
-	m.CheckErr(err, "unable to read validation rules from field")
+	constraints := &validate.FieldConstraints{}
+	_, err := field.Extension(validate.E_Field, constraints)
+	m.CheckErr(err, "unable to read validation constraints from field")
 
 	var schema jsonschema.Schema
 	var required bool
-
 	switch {
 	case field.Type().IsEmbed():
-		schema, required = m.schemaForEmbed(field.Type().Embed(), rules)
-
+		schema, required = m.schemaForEmbed(field.Type().Embed(), constraints)
 	case field.Type().IsEnum():
-		schema, required = m.schemaForEnum(field.Type().Enum(), rules.GetEnum())
-
+		schema, required = m.schemaForEnum(field.Type().Enum(), constraints.GetEnum())
 	case field.Type().IsMap():
-		schema, required = m.schemaForMap(field.Type().Element(), rules.GetMap())
-
+		schema = m.schemaForMap(field.Type().Element(), constraints.GetMap())
 	case field.Type().IsRepeated():
-		schema, required = m.schemaForRepeated(field.Type().Element(), rules.GetRepeated())
-
+		schema = m.schemaForRepeated(field.Type().Element(), constraints.GetRepeated())
+		required = constraints.Required
 	default:
-		schema, required = m.schemaForScalar(field.Type().ProtoType(), rules)
+		schema, required = m.schemaForScalar(field.Type().ProtoType(), constraints)
 	}
 
 	return schema, required && !field.InOneOf()
 }
 
-func (m *Module) schemaForEmbed(embed pgs.Message, rules *validate.FieldRules) (jsonschema.Schema, bool) {
+func (m *Module) schemaForEmbed(embed pgs.Message, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
 	if embed.IsWellKnown() {
-		return m.schemaForWellKnownType(embed.WellKnownType(), rules)
+		return m.schemaForWellKnownType(embed.WellKnownType(), constraints)
 	}
 
-	return m.schemaForMessage(embed, rules.GetMessage())
+	return m.schemaForMessage(embed), constraints.Required
 }
 
-func (m *Module) schemaForMessage(message pgs.Message, rules *validate.MessageRules) (jsonschema.Schema, bool) {
-	return m.messageRef(message), rules.GetRequired()
+func (m *Module) schemaForMessage(message pgs.Message) jsonschema.Schema {
+	return m.messageRef(message)
 }
 
 func (m *Module) schemaForOneOf(oneOf pgs.OneOf) jsonschema.NonTrivialSchema {
-	required := false
-	_, err := oneOf.Extension(validate.E_Required, &required)
+	constraint := validate.OneofConstraints{}
+	_, err := oneOf.Extension(validate.E_Oneof, &constraint)
 	m.CheckErr(err, "unable to read required option from oneof")
 
-	if !required {
+	if !*constraint.Required {
 		return nil
 	}
 

@@ -7,12 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cerbos/cerbos/hack/tools/protoc-gen-jsonschema/jsonschema"
-	"github.com/envoyproxy/protoc-gen-validate/validate"
 	pgs "github.com/lyft/protoc-gen-star/v2"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	duration "google.golang.org/protobuf/types/known/durationpb"
+
+	"github.com/cerbos/protoc-gen-jsonschema/gen/pb/buf/validate"
+	"github.com/cerbos/protoc-gen-jsonschema/internal/jsonschema"
 )
 
 type wellKnownType pgs.WellKnownType
@@ -92,52 +93,52 @@ func (m *Module) defineValue() jsonschema.Schema {
 	}
 }
 
-func (m *Module) schemaForWellKnownType(name pgs.WellKnownType, rules *validate.FieldRules) (jsonschema.Schema, bool) {
+func (m *Module) schemaForWellKnownType(name pgs.WellKnownType, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
 	switch name {
 	case pgs.AnyWKT:
-		return m.schemaForAny(rules.GetAny())
+		return m.schemaForAny(constraints.GetAny()), constraints.Required
 
 	case pgs.BoolValueWKT:
-		return m.schemaForBool(rules.GetBool())
+		return m.schemaForBool(constraints.GetBool())
 
 	case pgs.BytesValueWKT:
-		return m.schemaForBytes(rules.GetBytes())
+		return m.schemaForBytes(constraints.GetBytes(), constraints.IgnoreEmpty)
 
 	case pgs.DoubleValueWKT:
-		return m.schemaForNumericScalar(pgs.DoubleT, rules)
+		return m.schemaForNumericScalar(pgs.DoubleT, constraints)
 
 	case pgs.DurationWKT:
-		return m.schemaForDuration(rules.GetDuration())
+		return m.schemaForDuration(constraints.GetDuration()), constraints.Required
 
 	case pgs.EmptyWKT:
 		return m.ref(wellKnownTypeEmpty, m.defineEmpty), false
 
 	case pgs.FloatValueWKT:
-		return m.schemaForNumericScalar(pgs.FloatT, rules)
+		return m.schemaForNumericScalar(pgs.FloatT, constraints)
 
 	case pgs.Int32ValueWKT:
-		return m.schemaForNumericScalar(pgs.Int32T, rules)
+		return m.schemaForNumericScalar(pgs.Int32T, constraints)
 
 	case pgs.Int64ValueWKT:
-		return m.schemaForNumericScalar(pgs.Int64T, rules)
+		return m.schemaForNumericScalar(pgs.Int64T, constraints)
 
 	case pgs.ListValueWKT:
 		return m.ref(wellKnownTypeListValue, m.defineListValue), false
 
 	case pgs.StringValueWKT:
-		return m.schemaForString(rules.GetString_())
+		return m.schemaForString(constraints.GetString_(), constraints.IgnoreEmpty)
 
 	case pgs.StructWKT:
 		return m.ref(wellKnownTypeStruct, m.defineStruct), false
 
 	case pgs.TimestampWKT:
-		return m.schemaForTimestamp(rules.GetTimestamp())
+		return m.schemaForTimestamp(constraints.GetTimestamp()), constraints.Required
 
 	case pgs.UInt32ValueWKT:
-		return m.schemaForNumericScalar(pgs.UInt32T, rules)
+		return m.schemaForNumericScalar(pgs.UInt32T, constraints)
 
 	case pgs.UInt64ValueWKT:
-		return m.schemaForNumericScalar(pgs.UInt64T, rules)
+		return m.schemaForNumericScalar(pgs.UInt64T, constraints)
 
 	case pgs.ValueWKT:
 		return m.ref(wellKnownTypeValue, m.defineValue), false
@@ -148,7 +149,7 @@ func (m *Module) schemaForWellKnownType(name pgs.WellKnownType, rules *validate.
 	}
 }
 
-func (m *Module) schemaForAny(rules *validate.AnyRules) (jsonschema.Schema, bool) {
+func (m *Module) schemaForAny(rules *validate.AnyRules) jsonschema.Schema {
 	schemas := []jsonschema.NonTrivialSchema{m.ref(wellKnownTypeAny, m.defineAny)}
 
 	if rules != nil {
@@ -161,7 +162,7 @@ func (m *Module) schemaForAny(rules *validate.AnyRules) (jsonschema.Schema, bool
 		}
 	}
 
-	return jsonschema.AllOf(schemas...), rules.GetRequired()
+	return jsonschema.AllOf(schemas...)
 }
 
 func (m *Module) schemaForAnyIn(typeURLs []string) *jsonschema.ObjectSchema {
@@ -173,7 +174,7 @@ func (m *Module) schemaForAnyIn(typeURLs []string) *jsonschema.ObjectSchema {
 	return schema
 }
 
-func (m *Module) schemaForDuration(rules *validate.DurationRules) (jsonschema.Schema, bool) {
+func (m *Module) schemaForDuration(rules *validate.DurationRules) jsonschema.Schema {
 	schemas := []jsonschema.NonTrivialSchema{m.ref(wellKnownTypeDuration, m.defineDuration)}
 
 	if rules != nil {
@@ -190,7 +191,7 @@ func (m *Module) schemaForDuration(rules *validate.DurationRules) (jsonschema.Sc
 		}
 	}
 
-	return jsonschema.AllOf(schemas...), rules.GetRequired()
+	return jsonschema.AllOf(schemas...)
 }
 
 func (m *Module) schemaForDurationIn(durations []*duration.Duration) *jsonschema.StringSchema {
@@ -201,7 +202,7 @@ func (m *Module) schemaForDurationIn(durations []*duration.Duration) *jsonschema
 	return schema
 }
 
-func (m *Module) schemaForTimestamp(rules *validate.TimestampRules) (jsonschema.Schema, bool) {
+func (m *Module) schemaForTimestamp(rules *validate.TimestampRules) jsonschema.Schema {
 	schemas := []jsonschema.NonTrivialSchema{m.ref(wellKnownTypeTimestamp, m.defineTimestamp)}
 
 	if rules != nil {
@@ -210,7 +211,7 @@ func (m *Module) schemaForTimestamp(rules *validate.TimestampRules) (jsonschema.
 		}
 	}
 
-	return jsonschema.AllOf(schemas...), rules.GetRequired()
+	return jsonschema.AllOf(schemas...)
 }
 
 func (m *Module) schemaForProtoJSONStringConst(value proto.Message) *jsonschema.StringSchema {

@@ -3,6 +3,7 @@
 
 package jsonschema
 
+//nolint:govet
 type GenericSchema struct {
 	ID          string             `json:"$id,omitempty"`
 	Version     string             `json:"$schema,omitempty"`

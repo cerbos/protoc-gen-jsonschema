@@ -1,0 +1,11 @@
+version: v1
+name: buf.build/cerbos/protoc-gen-jsonschema-test
+deps:
+  - buf.build/bufbuild/protovalidate
+  - buf.build/protocolbuffers/wellknowntypes
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT

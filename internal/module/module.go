@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cerbos/cerbos/hack/tools/protoc-gen-jsonschema/jsonschema"
 	pgs "github.com/lyft/protoc-gen-star/v2"
+
+	"github.com/cerbos/protoc-gen-jsonschema/internal/jsonschema"
 )
 
 type Module struct {
@@ -26,7 +27,7 @@ func (*Module) Name() string {
 	return "jsonschema"
 }
 
-func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Package) []pgs.Artifact {
+func (m *Module) Execute(targets map[string]pgs.File, _ map[string]pgs.Package) []pgs.Artifact {
 	baseURL := m.Parameters().StrDefault("baseurl", "https://protoc-gen-jsonschema.cerbos.dev/")
 	if !strings.HasSuffix(baseURL, "/") {
 		baseURL += "/"
