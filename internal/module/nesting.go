@@ -18,6 +18,7 @@ type namedEntity interface {
 
 func (m *Module) pushMessage(message pgs.Message) {
 	m.Push(fmt.Sprintf("message:%s", message.Name()))
+	m.Debug("pushMessage")
 
 	if m.nestedUnderMessage == nil {
 		m.nestedUnderMessage = message
@@ -26,6 +27,7 @@ func (m *Module) pushMessage(message pgs.Message) {
 }
 
 func (m *Module) popMessage(message pgs.Message, schema jsonschema.NonTrivialSchema) {
+	m.Debug("popMessage")
 	if m.nestedUnder(message) {
 		schema.Define(m.definitions)
 		m.definitions = nil
@@ -36,6 +38,7 @@ func (m *Module) popMessage(message pgs.Message, schema jsonschema.NonTrivialSch
 }
 
 func (m *Module) ref(entity namedEntity, schema func() jsonschema.Schema) *jsonschema.GenericSchema {
+	m.Debug("ref")
 	if m.nestedUnder(entity) {
 		return jsonschema.Ref("#")
 	}

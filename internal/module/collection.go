@@ -11,6 +11,7 @@ import (
 )
 
 func (m *Module) schemaForMap(value pgs.FieldTypeElem, rules *validate.MapRules) jsonschema.Schema {
+	m.Debug("schemaForMap")
 	schema := jsonschema.NewObjectSchema()
 	schema.AdditionalProperties, _ = m.schemaForElement(value, rules.GetValues())
 
@@ -32,6 +33,7 @@ func (m *Module) schemaForMap(value pgs.FieldTypeElem, rules *validate.MapRules)
 }
 
 func (m *Module) schemaForRepeated(item pgs.FieldTypeElem, rules *validate.RepeatedRules) jsonschema.Schema {
+	m.Debug("schemaForRepeated")
 	schema := jsonschema.NewArraySchema()
 	schema.Items, _ = m.schemaForElement(item, rules.GetItems())
 
@@ -53,6 +55,7 @@ func (m *Module) schemaForRepeated(item pgs.FieldTypeElem, rules *validate.Repea
 }
 
 func (m *Module) schemaForElement(element pgs.FieldTypeElem, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+	m.Debug("schemaForElement")
 	if element.IsEmbed() {
 		return m.schemaForEmbed(element.Embed(), constraints)
 	}
