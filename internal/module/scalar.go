@@ -17,6 +17,7 @@ import (
 )
 
 func (m *Module) schemaForScalar(scalar pgs.ProtoType, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+	m.Debug("schemaForScalar")
 	if scalar.IsNumeric() {
 		return m.schemaForNumericScalar(scalar, constraints)
 	}
@@ -38,6 +39,7 @@ func (m *Module) schemaForScalar(scalar pgs.ProtoType, constraints *validate.Fie
 }
 
 func (m *Module) schemaForBool(rules *validate.BoolRules) (jsonschema.Schema, bool) {
+	m.Debug("schemaForBool")
 	required := false
 	schema := jsonschema.NewBooleanSchema()
 
@@ -52,6 +54,7 @@ func (m *Module) schemaForBool(rules *validate.BoolRules) (jsonschema.Schema, bo
 }
 
 func (m *Module) schemaForBytes(rules *validate.BytesRules, ignoreEmpty bool) (jsonschema.Schema, bool) {
+	m.Debug("schemaForBytes")
 	required := false
 
 	standard := jsonschema.NewStringSchema()
@@ -81,6 +84,7 @@ func (m *Module) schemaForBytes(rules *validate.BytesRules, ignoreEmpty bool) (j
 }
 
 func (m *Module) schemaForString(rules *validate.StringRules, ignoreEmpty bool) (jsonschema.Schema, bool) {
+	m.Debug("schemaForString")
 	required := false
 	schema := jsonschema.NewStringSchema()
 	schemas := []jsonschema.NonTrivialSchema{schema}
@@ -196,6 +200,7 @@ func (m *Module) schemaForString(rules *validate.StringRules, ignoreEmpty bool) 
 }
 
 func (m *Module) schemaForStringFormats(formats ...jsonschema.StringFormat) jsonschema.NonTrivialSchema {
+	m.Debug("schemaForStringFormats")
 	schemas := make([]jsonschema.NonTrivialSchema, len(formats))
 
 	for i, format := range formats {
@@ -208,6 +213,7 @@ func (m *Module) schemaForStringFormats(formats ...jsonschema.StringFormat) json
 }
 
 func (m *Module) makeRegexpCompatibleWithECMAScript(pattern string) string {
+	m.Debug("makeRegexpCompatibleWithECMAScript")
 	expression, err := syntax.Parse(pattern, syntax.Perl)
 	m.CheckErr(err, "failed to parse regular expression")
 
@@ -285,6 +291,7 @@ func writeECMAScriptCompatibleRegexp(w io.StringWriter, expression *syntax.Regex
 }
 
 func (m *Module) matchesEmptyString(pattern string) bool {
+	m.Debug("matchesEmptyString")
 	match, err := regexp.MatchString(pattern, "")
 	m.CheckErr(err, "failed to check if pattern matches empty string")
 	return match

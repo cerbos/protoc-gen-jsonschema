@@ -15,16 +15,17 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/pluginpb"
 
+	"github.com/cerbos/protoc-gen-jsonschema/internal/common"
 	"github.com/cerbos/protoc-gen-jsonschema/internal/module"
 )
 
 const (
-	debugEnv    = "PGC_DEBUG"
-	requestPath = "internal/test/code_generator_request.pb.bin"
+	debugPrintRequest = "PGJS_DEBUG_REQUEST"
+	requestPath       = "internal/test/code_generator_request.pb.bin"
 )
 
 func main() {
-	if _, exists := os.LookupEnv(debugEnv); exists {
+	if _, exists := os.LookupEnv(debugPrintRequest); exists {
 		if err := printRequest(requestPath); err != nil {
 			log.Fatalf("failed to print request: %s", err.Error())
 		}
@@ -37,7 +38,7 @@ func main() {
 
 	resBytes := &bytes.Buffer{}
 	pgs.Init(
-		pgs.DebugEnv(debugEnv),
+		pgs.DebugEnv(common.DebugEnv),
 		pgs.ProtocInput(reqFile),
 		pgs.ProtocOutput(resBytes),
 	).RegisterModule(module.New()).Render()

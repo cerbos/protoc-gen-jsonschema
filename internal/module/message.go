@@ -14,6 +14,7 @@ import (
 
 func (m *Module) defineMessage(message pgs.Message) jsonschema.NonTrivialSchema {
 	m.pushMessage(message)
+	m.Debug("defineMessage")
 
 	schema := jsonschema.NewObjectSchema()
 	schema.AdditionalProperties = jsonschema.False
@@ -47,6 +48,7 @@ func (m *Module) propertyName(field pgs.Field) string {
 func (m *Module) schemaForField(field pgs.Field) (jsonschema.Schema, bool) {
 	m.Push(fmt.Sprintf("field:%s", field.Name()))
 	defer m.Pop()
+	m.Debug("schemaForField")
 
 	constraints := &validate.FieldConstraints{}
 	_, err := field.Extension(validate.E_Field, constraints)
@@ -72,6 +74,7 @@ func (m *Module) schemaForField(field pgs.Field) (jsonschema.Schema, bool) {
 }
 
 func (m *Module) schemaForEmbed(embed pgs.Message, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+	m.Debug("schemaForEmbed")
 	if embed.IsWellKnown() {
 		return m.schemaForWellKnownType(embed.WellKnownType(), constraints)
 	}
@@ -80,10 +83,12 @@ func (m *Module) schemaForEmbed(embed pgs.Message, constraints *validate.FieldCo
 }
 
 func (m *Module) schemaForMessage(message pgs.Message) jsonschema.Schema {
+	m.Debug("schemaForMessage")
 	return m.messageRef(message)
 }
 
 func (m *Module) schemaForOneOf(oneOf pgs.OneOf) jsonschema.NonTrivialSchema {
+	m.Debug("schemaForOneOf")
 	constraint := validate.OneofConstraints{}
 	_, err := oneOf.Extension(validate.E_Oneof, &constraint)
 	m.CheckErr(err, "unable to read required option from oneof")
@@ -103,6 +108,7 @@ func (m *Module) schemaForOneOf(oneOf pgs.OneOf) jsonschema.NonTrivialSchema {
 }
 
 func (m *Module) messageRef(message pgs.Message) jsonschema.Schema {
+	m.Debug("messageRef")
 	return m.ref(message, func() jsonschema.Schema {
 		return m.defineMessage(message)
 	})

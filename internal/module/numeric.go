@@ -31,6 +31,7 @@ type numericRules struct {
 }
 
 func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+	m.Debug("schemaForNumericScalar")
 	required := false
 	value := m.valueSchemaForNumericScalar(numeric)
 	schemas := []jsonschema.NonTrivialSchema{m.stringValueSchemaForNumericScalar(numeric, value)}
@@ -88,6 +89,7 @@ func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *vali
 }
 
 func (m *Module) valueSchemaForNumericScalar(numeric pgs.ProtoType) *jsonschema.NumberSchema {
+	m.Debug("valueSchemaForNumericScalar")
 	switch numeric {
 	case pgs.Fixed32T, pgs.UInt32T, pgs.Fixed64T, pgs.UInt64T:
 		schema := jsonschema.NewIntegerSchema()
@@ -107,6 +109,7 @@ func (m *Module) valueSchemaForNumericScalar(numeric pgs.ProtoType) *jsonschema.
 }
 
 func (m *Module) stringValueSchemaForNumericScalar(numeric pgs.ProtoType, value *jsonschema.NumberSchema) jsonschema.NonTrivialSchema {
+	m.Debug("stringValueSchemaForNumericScalar")
 	var pattern string
 
 	switch numeric {
@@ -127,6 +130,7 @@ func (m *Module) stringValueSchemaForNumericScalar(numeric pgs.ProtoType, value 
 }
 
 func (m *Module) numericRules(numeric pgs.ProtoType, fieldRules *validate.FieldConstraints) *numericRules {
+	m.Debug("numericRules")
 	var source proto.Message
 
 	switch numeric {

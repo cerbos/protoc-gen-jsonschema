@@ -21,6 +21,7 @@ func (m *Module) defineEnum(enum pgs.Enum) *jsonschema.StringSchema {
 }
 
 func (m *Module) schemaForEnum(enum pgs.Enum, rules *validate.EnumRules) (jsonschema.Schema, bool) {
+	m.Debug("schemaForEnum")
 	if rules != nil {
 		switch {
 		case rules.Const != nil:
@@ -36,12 +37,14 @@ func (m *Module) schemaForEnum(enum pgs.Enum, rules *validate.EnumRules) (jsonsc
 }
 
 func (m *Module) schemaForEnumConst(enum pgs.Enum, value int32) (*jsonschema.StringSchema, bool) {
+	m.Debug("schemaForEnumConst")
 	schema := jsonschema.NewStringSchema()
 	schema.Const = jsonschema.String(m.lookUpEnumName(enum, value))
 	return schema, value != 0
 }
 
 func (m *Module) schemaForEnumIn(enum pgs.Enum, values []int32) (*jsonschema.StringSchema, bool) {
+	m.Debug("schemaForEnumIn")
 	schema := jsonschema.NewStringSchema()
 	required := true
 
@@ -55,6 +58,7 @@ func (m *Module) schemaForEnumIn(enum pgs.Enum, values []int32) (*jsonschema.Str
 }
 
 func (m *Module) schemaForEnumNotIn(enum pgs.Enum, values []int32) (*jsonschema.StringSchema, bool) {
+	m.Debug("schemaForEnumNotIn")
 	exclude := make(map[int32]struct{}, len(values))
 	for _, v := range values {
 		exclude[v] = struct{}{}
@@ -77,6 +81,7 @@ func (m *Module) schemaForEnumNotIn(enum pgs.Enum, values []int32) (*jsonschema.
 }
 
 func (m *Module) lookUpEnumName(enum pgs.Enum, value int32) string {
+	m.Debug("lookUpEnumName")
 	for _, enumValue := range enum.Values() {
 		if enumValue.Value() == value {
 			return enumValue.Name().String()
@@ -88,6 +93,7 @@ func (m *Module) lookUpEnumName(enum pgs.Enum, value int32) string {
 }
 
 func (m *Module) enumRef(enum pgs.Enum) *jsonschema.GenericSchema {
+	m.Debug("enumRef")
 	return m.ref(enum, func() jsonschema.Schema {
 		return m.defineEnum(enum)
 	})

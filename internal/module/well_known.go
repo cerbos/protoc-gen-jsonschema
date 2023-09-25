@@ -33,6 +33,7 @@ func (t wellKnownType) FullyQualifiedName() string {
 }
 
 func (m *Module) defineAny() jsonschema.Schema {
+	m.Debug("defineAny")
 	typeURL := jsonschema.NewStringSchema()
 	typeURL.Title = "Type URL"
 	typeURL.Description = "A URL/resource name whose content describes the type of the serialized message."
@@ -47,6 +48,7 @@ func (m *Module) defineAny() jsonschema.Schema {
 }
 
 func (m *Module) defineDuration() jsonschema.Schema {
+	m.Debug("defineDuration")
 	schema := jsonschema.NewStringSchema()
 	schema.Title = "Duration"
 	schema.Description = "A signed, fixed-length span of time represented as a count of seconds and fractions of seconds at nanosecond resolution."
@@ -55,6 +57,7 @@ func (m *Module) defineDuration() jsonschema.Schema {
 }
 
 func (m *Module) defineEmpty() jsonschema.Schema {
+	m.Debug("defineEmpty")
 	schema := jsonschema.NewObjectSchema()
 	schema.Title = "Empty"
 	schema.Description = "A generic empty message."
@@ -63,6 +66,7 @@ func (m *Module) defineEmpty() jsonschema.Schema {
 }
 
 func (m *Module) defineListValue() jsonschema.Schema {
+	m.Debug("defineListValue")
 	schema := jsonschema.NewArraySchema()
 	schema.Title = "ListValue"
 	schema.Description = "A repeated field of dynamically-typed values."
@@ -71,6 +75,7 @@ func (m *Module) defineListValue() jsonschema.Schema {
 }
 
 func (m *Module) defineStruct() jsonschema.Schema {
+	m.Debug("defineStruct")
 	schema := jsonschema.NewObjectSchema()
 	schema.Title = "Struct"
 	schema.Description = "A structured data value, consisting of fields which map to dynamically-typed values."
@@ -79,6 +84,7 @@ func (m *Module) defineStruct() jsonschema.Schema {
 }
 
 func (m *Module) defineTimestamp() jsonschema.Schema {
+	m.Debug("defineTimestamp")
 	schema := jsonschema.NewStringSchema()
 	schema.Title = "Timestamp"
 	schema.Description = "A point in time, independent of any time zone or calendar."
@@ -87,6 +93,7 @@ func (m *Module) defineTimestamp() jsonschema.Schema {
 }
 
 func (m *Module) defineValue() jsonschema.Schema {
+	m.Debug("defineValue")
 	return &jsonschema.GenericSchema{
 		Title:       "Value",
 		Description: "A dynamically-typed value.",
@@ -94,6 +101,7 @@ func (m *Module) defineValue() jsonschema.Schema {
 }
 
 func (m *Module) schemaForWellKnownType(name pgs.WellKnownType, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+	m.Debug("schemaForWellKnownType")
 	switch name {
 	case pgs.AnyWKT:
 		return m.schemaForAny(constraints.GetAny()), constraints.Required
@@ -150,6 +158,7 @@ func (m *Module) schemaForWellKnownType(name pgs.WellKnownType, constraints *val
 }
 
 func (m *Module) schemaForAny(rules *validate.AnyRules) jsonschema.Schema {
+	m.Debug("schemaForAny")
 	schemas := []jsonschema.NonTrivialSchema{m.ref(wellKnownTypeAny, m.defineAny)}
 
 	if rules != nil {
@@ -166,6 +175,7 @@ func (m *Module) schemaForAny(rules *validate.AnyRules) jsonschema.Schema {
 }
 
 func (m *Module) schemaForAnyIn(typeURLs []string) *jsonschema.ObjectSchema {
+	m.Debug("schemaForAnyIn")
 	typeURL := jsonschema.NewStringSchema()
 	typeURL.Enum = typeURLs
 
@@ -175,6 +185,7 @@ func (m *Module) schemaForAnyIn(typeURLs []string) *jsonschema.ObjectSchema {
 }
 
 func (m *Module) schemaForDuration(rules *validate.DurationRules) jsonschema.Schema {
+	m.Debug("schemaForDuration")
 	schemas := []jsonschema.NonTrivialSchema{m.ref(wellKnownTypeDuration, m.defineDuration)}
 
 	if rules != nil {
@@ -195,6 +206,7 @@ func (m *Module) schemaForDuration(rules *validate.DurationRules) jsonschema.Sch
 }
 
 func (m *Module) schemaForDurationIn(durations []*duration.Duration) *jsonschema.StringSchema {
+	m.Debug("schemaForDurationIn")
 	schema := jsonschema.NewStringSchema()
 	for _, duration := range durations {
 		schema.Enum = append(schema.Enum, m.protoJSONString(duration))
@@ -203,6 +215,7 @@ func (m *Module) schemaForDurationIn(durations []*duration.Duration) *jsonschema
 }
 
 func (m *Module) schemaForTimestamp(rules *validate.TimestampRules) jsonschema.Schema {
+	m.Debug("schemaForTimestamp")
 	schemas := []jsonschema.NonTrivialSchema{m.ref(wellKnownTypeTimestamp, m.defineTimestamp)}
 
 	if rules != nil {
@@ -215,12 +228,14 @@ func (m *Module) schemaForTimestamp(rules *validate.TimestampRules) jsonschema.S
 }
 
 func (m *Module) schemaForProtoJSONStringConst(value proto.Message) *jsonschema.StringSchema {
+	m.Debug("schemaForProtoJSONStringConst")
 	schema := jsonschema.NewStringSchema()
 	schema.Const = jsonschema.String(m.protoJSONString(value))
 	return schema
 }
 
 func (m *Module) protoJSONString(value proto.Message) string {
+	m.Debug("protoJSONString")
 	data, err := protojson.Marshal(value)
 	m.CheckErr(err, "failed to marshal value to proto JSON")
 
