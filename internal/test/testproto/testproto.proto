@@ -28,6 +28,14 @@ enum DummyEnum {
   DUMMYENUM_SET = 2;
 }
 
+message EmptyBoolRulesTest {
+  bool bool_field = 1;
+}
+
+message EmptyByteRulesTest {
+  bytes byte_field = 1;
+}
+
 message EmptyEmbeddedTest {
   message EmbeddedExpression {
     string operator = 1;
@@ -46,8 +54,27 @@ message EmptyEmbeddedTest {
   EmbeddedExpression.EmbeddedOperand condition = 1;
 }
 
+message EmptyEnumRulesTest {
+  DummyEnum enum_field = 1;
+}
+
+message EmptyFieldConstraintTest {
+  string string_field = 1;
+}
+
 message EmptyMapRulesTest {
   map<string, string> annotations = 1;
+}
+
+message EmptyOneOfRulesTest {
+  oneof oneof_field {
+    EmptyBoolRulesTest bool_field = 1;
+    EmptyStringRulesTest string_field = 2;
+  }
+}
+
+message EmptyStringRulesTest {
+  string string_field = 1;
 }
 
 message EnumRulesTest {
