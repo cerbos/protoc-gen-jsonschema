@@ -4,6 +4,7 @@ PROTOVALIDATE_MODULE := "buf.build/bufbuild/protovalidate"
 PROTOS_DIR := "protos"
 GENERATED_DIR := "gen"
 TEST_DIR := "internal/test"
+TESTDATA_DIR := "$(TEST_DIR)/testdata"
 
 .PHONY: build
 build: deps generate lint test compile install
@@ -17,7 +18,7 @@ deps:
 	@ go mod tidy --compat=1.21
 
 .PHONY: generate
-generate: $(BUF) generate-buf generate-testdata
+generate: $(BUF) generate-buf
 
 .PHONY: install
 install:
@@ -39,6 +40,8 @@ generate-buf: $(BUF)
 	@ $(BUF) generate $(PROTOS_DIR)
 	@ rm -rf $(PROTOS_DIR)
 
+# Run after testproto package is modified to generate new testdata
 .PHONY: generate-testdata
 generate-testdata: $(BUF)
+	@ rm -rf $(TESTDATA_DIR)/code_generator_request.pb.bin
 	@ cd $(TEST_DIR) && $(BUF) generate .
