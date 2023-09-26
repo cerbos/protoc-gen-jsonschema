@@ -28,6 +28,24 @@ enum DummyEnum {
   DUMMYENUM_SET = 2;
 }
 
+message EmptyEmbeddedTest {
+  message EmbeddedExpression {
+    string operator = 1;
+
+    message EmbeddedOperand {
+      oneof node {
+        google.protobuf.Value value = 1;
+        EmbeddedExpression expression = 2;
+        string variable = 3;
+      }
+    }
+
+    repeated EmbeddedOperand operands = 2;
+  }
+
+  EmbeddedExpression.EmbeddedOperand condition = 1;
+}
+
 message EnumRulesTest {
   DummyEnum enum_field = 1 [(buf.validate.field).enum = {
     in: [
@@ -94,22 +112,4 @@ message TimestampRulesTest {
 
 message Uint32RulesTest {
   uint32 uint32_field = 1 [(buf.validate.field).uint32 = {lte: 10}];
-}
-
-message EmbeddedTest {
-  message EmbeddedExpression {
-    string operator = 1;
-
-    message EmbeddedOperand {
-      oneof node {
-        google.protobuf.Value value = 1;
-        EmbeddedExpression expression = 2;
-        string variable = 3;
-      }
-    }
-
-    repeated EmbeddedOperand operands = 2;
-  }
-
-  EmbeddedExpression.EmbeddedOperand condition = 1;
 }
