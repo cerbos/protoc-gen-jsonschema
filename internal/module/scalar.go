@@ -22,6 +22,10 @@ func (m *Module) schemaForScalar(scalar pgs.ProtoType, constraints *validate.Fie
 		return m.schemaForNumericScalar(scalar, constraints)
 	}
 
+	if constraints == nil {
+		return nil, false
+	}
+
 	switch scalar {
 	case pgs.BoolT:
 		return m.schemaForBool(constraints.GetBool())
