@@ -129,49 +129,49 @@ func (m *Module) stringValueSchemaForNumericScalar(numeric pgs.ProtoType, value 
 	return jsonschema.OneOf(value, stringValue)
 }
 
-func (m *Module) numericRules(numeric pgs.ProtoType, fieldRules *validate.FieldConstraints) *numericRules {
+func (m *Module) numericRules(numeric pgs.ProtoType, constraints *validate.FieldConstraints) *numericRules {
 	m.Debug("numericRules")
 	var source proto.Message
 
 	switch numeric {
 	case pgs.DoubleT:
-		source = fieldRules.GetDouble()
+		source = constraints.GetDouble()
 
 	case pgs.Fixed32T:
-		source = fieldRules.GetFixed32()
+		source = constraints.GetFixed32()
 
 	case pgs.Fixed64T:
-		source = fieldRules.GetFixed64()
+		source = constraints.GetFixed64()
 
 	case pgs.FloatT:
-		source = fieldRules.GetFloat()
+		source = constraints.GetFloat()
 
 	case pgs.Int32T:
-		source = fieldRules.GetInt32()
+		source = constraints.GetInt32()
 
 	case pgs.Int64T:
-		source = fieldRules.GetInt64()
+		source = constraints.GetInt64()
 
 	case pgs.SFixed32:
-		source = fieldRules.GetSfixed32()
+		source = constraints.GetSfixed32()
 
 	case pgs.SFixed64:
-		source = fieldRules.GetSfixed64()
+		source = constraints.GetSfixed64()
 
 	case pgs.SInt32:
-		source = fieldRules.GetSint32()
+		source = constraints.GetSint32()
 
 	case pgs.SInt64:
-		source = fieldRules.GetSint64()
+		source = constraints.GetSint64()
 
 	case pgs.StringT:
-		source = fieldRules.GetString_()
+		source = constraints.GetString_()
 
 	case pgs.UInt32T:
-		source = fieldRules.GetUint32()
+		source = constraints.GetUint32()
 
 	case pgs.UInt64T:
-		source = fieldRules.GetUint64()
+		source = constraints.GetUint64()
 
 	default:
 		m.Failf("unknown numeric scalar type %q", numeric)
