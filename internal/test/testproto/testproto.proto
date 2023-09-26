@@ -46,6 +46,10 @@ message EmptyEmbeddedTest {
   EmbeddedExpression.EmbeddedOperand condition = 1;
 }
 
+message EmptyMapRulesTest {
+  map<string, string> annotations = 1;
+}
+
 message EnumRulesTest {
   DummyEnum enum_field = 1 [(buf.validate.field).enum = {
     in: [
