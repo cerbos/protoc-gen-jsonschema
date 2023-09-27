@@ -22,8 +22,9 @@ func (m *Module) schemaForScalar(scalar pgs.ProtoType, constraints *validate.Fie
 		return m.schemaForNumericScalar(scalar, constraints)
 	}
 
-	if constraints == nil {
-		return nil, false
+	ignoreEmpty := false
+	if constraints != nil {
+		ignoreEmpty = constraints.IgnoreEmpty
 	}
 
 	switch scalar {
@@ -31,10 +32,10 @@ func (m *Module) schemaForScalar(scalar pgs.ProtoType, constraints *validate.Fie
 		return m.schemaForBool(constraints.GetBool())
 
 	case pgs.BytesT:
-		return m.schemaForBytes(constraints.GetBytes(), constraints.IgnoreEmpty)
+		return m.schemaForBytes(constraints.GetBytes(), ignoreEmpty)
 
 	case pgs.StringT:
-		return m.schemaForString(constraints.GetString_(), constraints.IgnoreEmpty)
+		return m.schemaForString(constraints.GetString_(), ignoreEmpty)
 
 	default:
 		m.Failf("unexpected scalar type %q", scalar)
