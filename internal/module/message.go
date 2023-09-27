@@ -91,9 +91,9 @@ func (m *Module) schemaForOneOf(oneOf pgs.OneOf) jsonschema.NonTrivialSchema {
 	m.Debug("schemaForOneOf")
 	constraint := validate.OneofConstraints{}
 	_, err := oneOf.Extension(validate.E_Oneof, &constraint)
-	m.CheckErr(err, "unable to read required option from oneof")
+	m.CheckErr(err, "unable to read oneOf option")
 
-	if constraint.Required != nil && !*constraint.Required {
+	if constraint.Required == nil || !*constraint.Required {
 		return nil
 	}
 

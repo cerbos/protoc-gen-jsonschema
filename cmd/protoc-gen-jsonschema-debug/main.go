@@ -21,7 +21,7 @@ import (
 
 const (
 	debugPrintRequest = "PGJS_DEBUG_REQUEST"
-	requestPath       = "internal/test/code_generator_request.pb.bin"
+	requestPath       = "internal/test/testdata/code_generator_request.pb.bin"
 )
 
 func main() {
