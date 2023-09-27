@@ -54,32 +54,35 @@ func (m *Module) schemaForField(field pgs.Field) (jsonschema.Schema, bool) {
 	_, err := field.Extension(validate.E_Field, constraints)
 	m.CheckErr(err, "unable to read validation constraints from field")
 
+	required := constraints.Required
+	if constraints.IgnoreEmpty {
+		required = false
+	}
+
 	var schema jsonschema.Schema
-	var required bool
 	switch {
 	case field.Type().IsEmbed():
-		schema, required = m.schemaForEmbed(field.Type().Embed(), constraints)
+		schema = m.schemaForEmbed(field.Type().Embed(), constraints)
 	case field.Type().IsEnum():
-		schema, required = m.schemaForEnum(field.Type().Enum(), constraints.GetEnum())
+		schema = m.schemaForEnum(field.Type().Enum(), constraints.GetEnum())
 	case field.Type().IsMap():
 		schema = m.schemaForMap(field.Type().Element(), constraints.GetMap())
 	case field.Type().IsRepeated():
 		schema = m.schemaForRepeated(field.Type().Element(), constraints.GetRepeated())
-		required = constraints.Required
 	default:
-		schema, required = m.schemaForScalar(field.Type().ProtoType(), constraints)
+		schema = m.schemaForScalar(field.Type().ProtoType(), constraints)
 	}
 
 	return schema, required && !field.InOneOf()
 }
 
-func (m *Module) schemaForEmbed(embed pgs.Message, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+func (m *Module) schemaForEmbed(embed pgs.Message, constraints *validate.FieldConstraints) jsonschema.Schema {
 	m.Debug("schemaForEmbed")
 	if embed.IsWellKnown() {
 		return m.schemaForWellKnownType(embed.WellKnownType(), constraints)
 	}
 
-	return m.schemaForMessage(embed), false
+	return m.schemaForMessage(embed)
 }
 
 func (m *Module) schemaForMessage(message pgs.Message) jsonschema.Schema {

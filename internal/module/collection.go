@@ -13,11 +13,11 @@ import (
 func (m *Module) schemaForMap(value pgs.FieldTypeElem, rules *validate.MapRules) jsonschema.Schema {
 	m.Debug("schemaForMap")
 	schema := jsonschema.NewObjectSchema()
-	schema.AdditionalProperties, _ = m.schemaForElement(value, rules.GetValues())
+	schema.AdditionalProperties = m.schemaForElement(value, rules.GetValues())
 
 	if rules != nil {
 		if rules.GetKeys().GetString_() != nil {
-			schema.PropertyNames, _ = m.schemaForString(rules.GetKeys().GetString_(), false) // TODO
+			schema.PropertyNames = m.schemaForString(rules.GetKeys().GetString_())
 		}
 
 		if rules.MaxPairs != nil {
@@ -35,7 +35,7 @@ func (m *Module) schemaForMap(value pgs.FieldTypeElem, rules *validate.MapRules)
 func (m *Module) schemaForRepeated(item pgs.FieldTypeElem, rules *validate.RepeatedRules) jsonschema.Schema {
 	m.Debug("schemaForRepeated")
 	schema := jsonschema.NewArraySchema()
-	schema.Items, _ = m.schemaForElement(item, rules.GetItems())
+	schema.Items = m.schemaForElement(item, rules.GetItems())
 
 	if rules != nil {
 		if rules.MaxItems != nil {
@@ -54,7 +54,7 @@ func (m *Module) schemaForRepeated(item pgs.FieldTypeElem, rules *validate.Repea
 	return schema
 }
 
-func (m *Module) schemaForElement(element pgs.FieldTypeElem, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+func (m *Module) schemaForElement(element pgs.FieldTypeElem, constraints *validate.FieldConstraints) jsonschema.Schema {
 	m.Debug("schemaForElement")
 	if element.IsEmbed() {
 		return m.schemaForEmbed(element.Embed(), constraints)

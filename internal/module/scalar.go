@@ -16,51 +16,40 @@ import (
 	"github.com/cerbos/protoc-gen-jsonschema/internal/jsonschema"
 )
 
-func (m *Module) schemaForScalar(scalar pgs.ProtoType, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+func (m *Module) schemaForScalar(scalar pgs.ProtoType, constraints *validate.FieldConstraints) jsonschema.Schema {
 	m.Debug("schemaForScalar")
 	if scalar.IsNumeric() {
 		return m.schemaForNumericScalar(scalar, constraints)
 	}
 
-	ignoreEmpty := false
-	if constraints != nil {
-		ignoreEmpty = constraints.IgnoreEmpty
-	}
-
 	switch scalar {
 	case pgs.BoolT:
 		return m.schemaForBool(constraints.GetBool())
-
 	case pgs.BytesT:
-		return m.schemaForBytes(constraints.GetBytes(), ignoreEmpty)
-
+		return m.schemaForBytes()
 	case pgs.StringT:
-		return m.schemaForString(constraints.GetString_(), ignoreEmpty)
-
+		return m.schemaForString(constraints.GetString_())
 	default:
 		m.Failf("unexpected scalar type %q", scalar)
-		return nil, false
+		return nil
 	}
 }
 
-func (m *Module) schemaForBool(rules *validate.BoolRules) (jsonschema.Schema, bool) {
+func (m *Module) schemaForBool(rules *validate.BoolRules) jsonschema.Schema {
 	m.Debug("schemaForBool")
-	required := false
 	schema := jsonschema.NewBooleanSchema()
 
 	if rules != nil {
 		if rules.Const != nil {
 			schema.Const = jsonschema.Boolean(rules.GetConst())
-			required = true
 		}
 	}
 
-	return schema, required
+	return schema
 }
 
-func (m *Module) schemaForBytes(rules *validate.BytesRules, ignoreEmpty bool) (jsonschema.Schema, bool) {
+func (m *Module) schemaForBytes() jsonschema.Schema {
 	m.Debug("schemaForBytes")
-	required := false
 
 	standard := jsonschema.NewStringSchema()
 	standard.Title = "Standard base64 encoding"
@@ -72,25 +61,11 @@ func (m *Module) schemaForBytes(rules *validate.BytesRules, ignoreEmpty bool) (j
 
 	schema := jsonschema.NewStringSchema()
 	schema.OneOf = []jsonschema.NonTrivialSchema{standard, urlSafe}
-
-	if rules != nil {
-		required = !ignoreEmpty &&
-			(len(rules.Const) > 0 ||
-				len(rules.Contains) > 0 ||
-				len(rules.In) > 0 ||
-				rules.MinLen != nil ||
-				rules.Pattern != nil ||
-				len(rules.Prefix) > 0 ||
-				len(rules.Suffix) > 0 ||
-				rules.WellKnown != nil)
-	}
-
-	return schema, required
+	return schema
 }
 
-func (m *Module) schemaForString(rules *validate.StringRules, ignoreEmpty bool) (jsonschema.Schema, bool) {
+func (m *Module) schemaForString(rules *validate.StringRules) jsonschema.Schema {
 	m.Debug("schemaForString")
-	required := false
 	schema := jsonschema.NewStringSchema()
 	schemas := []jsonschema.NonTrivialSchema{schema}
 	var patterns []string
@@ -99,27 +74,19 @@ func (m *Module) schemaForString(rules *validate.StringRules, ignoreEmpty bool) 
 	if rules != nil {
 		if rules.Const != nil {
 			schema.Const = jsonschema.String(rules.GetConst())
-			required = !ignoreEmpty
 		}
 
 		if rules.Contains != nil {
 			patterns = append(patterns, regexp.QuoteMeta(rules.GetContains()))
-			required = !ignoreEmpty
 		}
 
 		if len(rules.In) > 0 {
 			schema.Enum = rules.In
-			required = !ignoreEmpty
 		}
 
 		if rules.Len != nil {
 			schema.MaxLength = jsonschema.Size(rules.GetLen())
 			schema.MinLength = jsonschema.Size(rules.GetLen())
-			required = !ignoreEmpty
-		}
-
-		if rules.LenBytes != nil || rules.MinBytes != nil {
-			required = !ignoreEmpty
 		}
 
 		if rules.MaxLen != nil {
@@ -128,7 +95,6 @@ func (m *Module) schemaForString(rules *validate.StringRules, ignoreEmpty bool) 
 
 		if rules.MinLen != nil {
 			schema.MinLength = jsonschema.Size(rules.GetMinLen())
-			required = !ignoreEmpty
 		}
 
 		if rules.NotContains != nil {
@@ -145,19 +111,14 @@ func (m *Module) schemaForString(rules *validate.StringRules, ignoreEmpty bool) 
 
 		if rules.Pattern != nil {
 			patterns = append(patterns, m.makeRegexpCompatibleWithECMAScript(rules.GetPattern()))
-			if !m.matchesEmptyString(rules.GetPattern()) {
-				required = !ignoreEmpty
-			}
 		}
 
 		if rules.Prefix != nil {
 			patterns = append(patterns, "^"+regexp.QuoteMeta(rules.GetPrefix()))
-			required = !ignoreEmpty
 		}
 
 		if rules.Suffix != nil {
 			patterns = append(patterns, regexp.QuoteMeta(rules.GetSuffix())+"$")
-			required = !ignoreEmpty
 		}
 
 		if rules.WellKnown != nil {
@@ -186,8 +147,6 @@ func (m *Module) schemaForString(rules *validate.StringRules, ignoreEmpty bool) 
 			case *validate.StringRules_UriRef:
 				schema.Format = jsonschema.StringFormatURIReference
 			}
-
-			required = !ignoreEmpty
 		}
 	}
 
@@ -201,7 +160,7 @@ func (m *Module) schemaForString(rules *validate.StringRules, ignoreEmpty bool) 
 		}
 	}
 
-	return jsonschema.AllOf(schemas...), required
+	return jsonschema.AllOf(schemas...)
 }
 
 func (m *Module) schemaForStringFormats(formats ...jsonschema.StringFormat) jsonschema.NonTrivialSchema {
@@ -293,11 +252,4 @@ func writeECMAScriptCompatibleRegexp(w io.StringWriter, expression *syntax.Regex
 	default:
 		w.WriteString(expression.String()) //nolint:errcheck
 	}
-}
-
-func (m *Module) matchesEmptyString(pattern string) bool {
-	m.Debug("matchesEmptyString")
-	match, err := regexp.MatchString(pattern, "")
-	m.CheckErr(err, "failed to check if pattern matches empty string")
-	return match
 }

@@ -30,9 +30,8 @@ type numericRules struct {
 	IgnoreEmpty bool                `json:"ignore_empty,omitempty"`
 }
 
-func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *validate.FieldConstraints) jsonschema.Schema {
 	m.Debug("schemaForNumericScalar")
-	required := false
 	value := m.valueSchemaForNumericScalar(numeric)
 	schemas := []jsonschema.NonTrivialSchema{m.stringValueSchemaForNumericScalar(numeric, value)}
 	rules := m.numericRules(numeric, constraints)
@@ -41,40 +40,26 @@ func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *vali
 	if rules != nil {
 		if rules.Const != nil {
 			value.Const = rules.Const
-			required = !rules.IgnoreEmpty
 		}
 
 		if rules.Gt != nil {
 			value.ExclusiveMinimum = rules.Gt
-			if !rules.Gt.IsNegative() {
-				required = !rules.IgnoreEmpty
-			}
 		}
 
 		if rules.Gte != nil {
 			value.Minimum = rules.Gte
-			if rules.Gte.IsPositive() {
-				required = !rules.IgnoreEmpty
-			}
 		}
 
 		if len(rules.In) > 0 {
 			value.Enum = rules.In
-			required = !rules.IgnoreEmpty
 		}
 
 		if rules.Lt != nil {
 			value.ExclusiveMaximum = rules.Lt
-			if !rules.Lt.IsPositive() {
-				required = !rules.IgnoreEmpty
-			}
 		}
 
 		if rules.Lte != nil {
 			value.Maximum = rules.Lte
-			if rules.Lte.IsNegative() {
-				required = !rules.IgnoreEmpty
-			}
 		}
 
 		if len(rules.NotIn) > 0 {
@@ -85,7 +70,7 @@ func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *vali
 		}
 	}
 
-	return jsonschema.AllOf(schemas...), required
+	return jsonschema.AllOf(schemas...)
 }
 
 func (m *Module) valueSchemaForNumericScalar(numeric pgs.ProtoType) *jsonschema.NumberSchema {

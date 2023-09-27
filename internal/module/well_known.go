@@ -100,60 +100,44 @@ func (m *Module) defineValue() jsonschema.Schema {
 	}
 }
 
-func (m *Module) schemaForWellKnownType(name pgs.WellKnownType, constraints *validate.FieldConstraints) (jsonschema.Schema, bool) {
+func (m *Module) schemaForWellKnownType(name pgs.WellKnownType, constraints *validate.FieldConstraints) jsonschema.Schema {
 	m.Debug("schemaForWellKnownType")
 	switch name {
 	case pgs.AnyWKT:
-		return m.schemaForAny(constraints.GetAny()), constraints.Required
-
+		return m.schemaForAny(constraints.GetAny())
 	case pgs.BoolValueWKT:
 		return m.schemaForBool(constraints.GetBool())
-
 	case pgs.BytesValueWKT:
-		return m.schemaForBytes(constraints.GetBytes(), constraints.IgnoreEmpty)
-
+		return m.schemaForBytes()
 	case pgs.DoubleValueWKT:
 		return m.schemaForNumericScalar(pgs.DoubleT, constraints)
-
 	case pgs.DurationWKT:
-		return m.schemaForDuration(constraints.GetDuration()), constraints.Required
-
+		return m.schemaForDuration(constraints.GetDuration())
 	case pgs.EmptyWKT:
-		return m.ref(wellKnownTypeEmpty, m.defineEmpty), false
-
+		return m.ref(wellKnownTypeEmpty, m.defineEmpty)
 	case pgs.FloatValueWKT:
 		return m.schemaForNumericScalar(pgs.FloatT, constraints)
-
 	case pgs.Int32ValueWKT:
 		return m.schemaForNumericScalar(pgs.Int32T, constraints)
-
 	case pgs.Int64ValueWKT:
 		return m.schemaForNumericScalar(pgs.Int64T, constraints)
-
 	case pgs.ListValueWKT:
-		return m.ref(wellKnownTypeListValue, m.defineListValue), false
-
+		return m.ref(wellKnownTypeListValue, m.defineListValue)
 	case pgs.StringValueWKT:
-		return m.schemaForString(constraints.GetString_(), constraints.IgnoreEmpty)
-
+		return m.schemaForString(constraints.GetString_())
 	case pgs.StructWKT:
-		return m.ref(wellKnownTypeStruct, m.defineStruct), false
-
+		return m.ref(wellKnownTypeStruct, m.defineStruct)
 	case pgs.TimestampWKT:
-		return m.schemaForTimestamp(constraints.GetTimestamp()), constraints.Required
-
+		return m.schemaForTimestamp(constraints.GetTimestamp())
 	case pgs.UInt32ValueWKT:
 		return m.schemaForNumericScalar(pgs.UInt32T, constraints)
-
 	case pgs.UInt64ValueWKT:
 		return m.schemaForNumericScalar(pgs.UInt64T, constraints)
-
 	case pgs.ValueWKT:
-		return m.ref(wellKnownTypeValue, m.defineValue), false
-
+		return m.ref(wellKnownTypeValue, m.defineValue)
 	default:
 		m.Failf("unexpected well-known type %q", name)
-		return nil, false
+		return nil
 	}
 }
 
