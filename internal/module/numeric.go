@@ -20,14 +20,17 @@ const (
 
 //nolint:tagliatelle
 type numericRules struct {
-	Const       jsonschema.Number   `json:"const,omitempty"`
-	Lt          jsonschema.Number   `json:"lt,omitempty"`
-	Lte         jsonschema.Number   `json:"lte,omitempty"`
-	Gt          jsonschema.Number   `json:"gt,omitempty"`
-	Gte         jsonschema.Number   `json:"gte,omitempty"`
-	In          []jsonschema.Number `json:"in,omitempty"`
-	NotIn       []jsonschema.Number `json:"not_in,omitempty"`
-	IgnoreEmpty bool                `json:"ignore_empty,omitempty"`
+	Const       jsonschema.Number `json:"const,omitempty"`
+	GreaterThan struct {
+		Gt  jsonschema.Number `json:"Gt,omitempty"`
+		Gte jsonschema.Number `json:"Gte,omitempty"`
+	} `json:"GreaterThan,omitempty"`
+	LessThan struct {
+		Lt  jsonschema.Number `json:"Lt,omitempty"`
+		Lte jsonschema.Number `json:"Lte,omitempty"`
+	} `json:"LessThan,omitempty"`
+	In    []jsonschema.Number `json:"in,omitempty"`
+	NotIn []jsonschema.Number `json:"not_in,omitempty"`
 }
 
 func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *validate.FieldConstraints) jsonschema.Schema {
@@ -42,24 +45,24 @@ func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *vali
 			value.Const = rules.Const
 		}
 
-		if rules.Gt != nil {
-			value.ExclusiveMinimum = rules.Gt
+		if rules.GreaterThan.Gt != nil {
+			value.ExclusiveMinimum = rules.GreaterThan.Gt
 		}
 
-		if rules.Gte != nil {
-			value.Minimum = rules.Gte
+		if rules.GreaterThan.Gte != nil {
+			value.Minimum = rules.GreaterThan.Gte
 		}
 
 		if len(rules.In) > 0 {
 			value.Enum = rules.In
 		}
 
-		if rules.Lt != nil {
-			value.ExclusiveMaximum = rules.Lt
+		if rules.LessThan.Lt != nil {
+			value.ExclusiveMaximum = rules.LessThan.Lt
 		}
 
-		if rules.Lte != nil {
-			value.Maximum = rules.Lte
+		if rules.LessThan.Lte != nil {
+			value.Maximum = rules.LessThan.Lte
 		}
 
 		if len(rules.NotIn) > 0 {
