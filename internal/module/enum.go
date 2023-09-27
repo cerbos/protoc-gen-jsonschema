@@ -20,7 +20,7 @@ func (m *Module) defineEnum(enum pgs.Enum) *jsonschema.StringSchema {
 	return schema
 }
 
-func (m *Module) schemaForEnum(enum pgs.Enum, rules *validate.EnumRules) (jsonschema.Schema, bool) {
+func (m *Module) schemaForEnum(enum pgs.Enum, rules *validate.EnumRules) jsonschema.Schema {
 	m.Debug("schemaForEnum")
 	if rules != nil {
 		switch {
@@ -33,31 +33,28 @@ func (m *Module) schemaForEnum(enum pgs.Enum, rules *validate.EnumRules) (jsonsc
 		}
 	}
 
-	return m.enumRef(enum), false
+	return m.enumRef(enum)
 }
 
-func (m *Module) schemaForEnumConst(enum pgs.Enum, value int32) (*jsonschema.StringSchema, bool) {
+func (m *Module) schemaForEnumConst(enum pgs.Enum, value int32) *jsonschema.StringSchema {
 	m.Debug("schemaForEnumConst")
 	schema := jsonschema.NewStringSchema()
 	schema.Const = jsonschema.String(m.lookUpEnumName(enum, value))
-	return schema, value != 0
+
+	return schema
 }
 
-func (m *Module) schemaForEnumIn(enum pgs.Enum, values []int32) (*jsonschema.StringSchema, bool) {
+func (m *Module) schemaForEnumIn(enum pgs.Enum, values []int32) *jsonschema.StringSchema {
 	m.Debug("schemaForEnumIn")
 	schema := jsonschema.NewStringSchema()
-	required := true
-
 	for _, value := range values {
 		schema.Enum = append(schema.Enum, m.lookUpEnumName(enum, value))
-		if value == 0 {
-			required = false
-		}
 	}
-	return schema, required
+
+	return schema
 }
 
-func (m *Module) schemaForEnumNotIn(enum pgs.Enum, values []int32) (*jsonschema.StringSchema, bool) {
+func (m *Module) schemaForEnumNotIn(enum pgs.Enum, values []int32) *jsonschema.StringSchema {
 	m.Debug("schemaForEnumNotIn")
 	exclude := make(map[int32]struct{}, len(values))
 	for _, v := range values {
@@ -65,19 +62,14 @@ func (m *Module) schemaForEnumNotIn(enum pgs.Enum, values []int32) (*jsonschema.
 	}
 
 	schema := jsonschema.NewStringSchema()
-	required := true
-
 	for _, v := range enum.Values() {
 		value := v.Value()
 		if _, ok := exclude[value]; !ok {
 			schema.Enum = append(schema.Enum, v.Name().String())
-			if value == 0 {
-				required = false
-			}
 		}
 	}
 
-	return schema, required
+	return schema
 }
 
 func (m *Module) lookUpEnumName(enum pgs.Enum, value int32) string {
