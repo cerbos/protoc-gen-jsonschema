@@ -7,12 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	pgs "github.com/lyft/protoc-gen-star/v2"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	duration "google.golang.org/protobuf/types/known/durationpb"
 
-	"github.com/cerbos/protoc-gen-jsonschema/gen/pb/buf/validate"
 	"github.com/cerbos/protoc-gen-jsonschema/internal/jsonschema"
 )
 
