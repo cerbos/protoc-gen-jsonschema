@@ -53,8 +53,8 @@ jobs:
         with:
           go-version: 1.21.x
       - uses: actions/checkout@v3
-      - name: Run make generate deps compile test install
-        run: make generate deps compile test install
+      - name: Run make deps compile test install
+        run: make deps compile test install
       - name: Check undetected changes
         run: |-
           REPO_STATUS="$(git status --porcelain)"
