@@ -54,8 +54,8 @@ func (m *Module) schemaForField(field pgs.Field) (jsonschema.Schema, bool) {
 	_, err := field.Extension(validate.E_Field, constraints)
 	m.CheckErr(err, "unable to read validation constraints from field")
 
-	required := constraints.Required
-	if constraints.IgnoreEmpty {
+	required := constraints.GetRequired()
+	if constraints.GetIgnore() == validate.Ignore_IGNORE_IF_UNPOPULATED {
 		required = false
 	}
 
