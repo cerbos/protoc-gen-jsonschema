@@ -19,7 +19,6 @@ linters-settings:
 
   nolintlint:
     allow-unused: false
-    allow-leading-space: false
     require-specific: true
 
   tagliatelle:
@@ -35,11 +34,11 @@ linters:
     - asciicheck
     - bidichk
     - bodyclose
+    - copyloopvar
     - dupl
     - durationcheck
     - errorlint
     - exhaustive
-    - exportloopref
     - forbidigo
     - forcetypeassert
     - gci
@@ -48,13 +47,13 @@ linters:
     - godot
     - gofumpt
     - goimports
-    - gomnd
     - gomoddirectives
     - gosec
     - govet
     - importas
     - makezero
     - misspell
+    - mnd
     - nakedret
     - nestif
     - nilerr
@@ -78,22 +77,17 @@ linters:
     - cyclop
     - depguard
     - dogsled
-    - exhaustivestruct
     - funlen
     - gochecknoglobals
     - gochecknoinits
     - gocognit
     - gocyclo
     - godox
-    - goerr113
     - gofmt
     - goheader
-    - golint
     - gomodguard
     - goprintffuncname
-    - interfacer
     - lll
-    - maligned
     - nlreturn
     - paralleltest
     - stylecheck
@@ -109,5 +103,5 @@ issues:
       linters:
         - forcetypeassert
         - goconst
-        - gomnd
         - govet
+        - mnd
