@@ -17,7 +17,7 @@ message BoolRulesTest {
 
 message ByteRulesTest {
   bytes byte_field = 1 [(buf.validate.field).bytes = {
-    min_len: 1,
+    min_len: 1
     max_len: 1048576
   }];
 }
@@ -89,14 +89,14 @@ message EnumRulesTest {
 
 message FieldConstraintTest {
   string string_field = 1 [(buf.validate.field) = {
-    required: true,
+    required: true
     ignore_empty: false
   }];
 }
 
 message MapRulesTest {
   map<string, DummyEnum> map_field = 1 [(buf.validate.field).map = {
-    min_pairs: 1,
+    min_pairs: 1
     keys: {
       string: {min_len: 1}
     }
@@ -118,18 +118,18 @@ message OneOfRulesTest {
 
 message RepeatedRulesTest {
   repeated string repeated_field = 1 [(buf.validate.field).repeated = {
-    min_items: 1,
-    unique: true,
-    items {
-      string {min_len: 1}
+    min_items: 1
+    unique: true
+    items: {
+      string: {min_len: 1}
     }
   }];
 }
 
 message StringRulesTest {
   string string_field = 1 [(buf.validate.field).string = {
-    min_len: 1,
-    max_len: 5,
+    min_len: 1
+    max_len: 5
     pattern: "^[[:word:]]*$"
   }];
 }
