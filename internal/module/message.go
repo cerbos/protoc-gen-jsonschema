@@ -59,6 +59,10 @@ func (m *Module) schemaForField(field pgs.Field) (jsonschema.Schema, bool) {
 		required = false
 	}
 
+	if field.HasOptionalKeyword() {
+		required = false
+	}
+
 	var schema jsonschema.Schema
 	switch {
 	case field.Type().IsEmbed():
