@@ -15,7 +15,7 @@ compile:
 
 .PHONY: deps
 deps:
-	@ go mod tidy --compat=1.21
+	@ go mod tidy
 
 .PHONY: install
 install:

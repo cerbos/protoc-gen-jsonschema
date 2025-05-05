@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Zenauth Ltd.
+// Copyright 2021-2025 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
 package module
@@ -33,41 +33,41 @@ type numericRules struct {
 	NotIn []jsonschema.Number `json:"not_in,omitempty"`
 }
 
-func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, constraints *validate.FieldConstraints) jsonschema.Schema {
+func (m *Module) schemaForNumericScalar(numeric pgs.ProtoType, rules *validate.FieldRules) jsonschema.Schema {
 	m.Debug("schemaForNumericScalar")
 	value := m.valueSchemaForNumericScalar(numeric)
 	schemas := []jsonschema.NonTrivialSchema{m.stringValueSchemaForNumericScalar(numeric, value)}
-	rules := m.numericRules(numeric, constraints)
+	r := m.numericRules(numeric, rules)
 
 	//nolint:nestif
-	if rules != nil {
-		if rules.Const != nil {
-			value.Const = rules.Const
+	if r != nil {
+		if r.Const != nil {
+			value.Const = r.Const
 		}
 
-		if rules.GreaterThan.Gt != nil {
-			value.ExclusiveMinimum = rules.GreaterThan.Gt
+		if r.GreaterThan.Gt != nil {
+			value.ExclusiveMinimum = r.GreaterThan.Gt
 		}
 
-		if rules.GreaterThan.Gte != nil {
-			value.Minimum = rules.GreaterThan.Gte
+		if r.GreaterThan.Gte != nil {
+			value.Minimum = r.GreaterThan.Gte
 		}
 
-		if len(rules.In) > 0 {
-			value.Enum = rules.In
+		if len(r.In) > 0 {
+			value.Enum = r.In
 		}
 
-		if rules.LessThan.Lt != nil {
-			value.ExclusiveMaximum = rules.LessThan.Lt
+		if r.LessThan.Lt != nil {
+			value.ExclusiveMaximum = r.LessThan.Lt
 		}
 
-		if rules.LessThan.Lte != nil {
-			value.Maximum = rules.LessThan.Lte
+		if r.LessThan.Lte != nil {
+			value.Maximum = r.LessThan.Lte
 		}
 
-		if len(rules.NotIn) > 0 {
+		if len(r.NotIn) > 0 {
 			in := jsonschema.NewNumberSchema()
-			in.Enum = rules.NotIn
+			in.Enum = r.NotIn
 
 			schemas = append(schemas, jsonschema.Not(in))
 		}
@@ -117,49 +117,49 @@ func (m *Module) stringValueSchemaForNumericScalar(numeric pgs.ProtoType, value 
 	return jsonschema.OneOf(value, stringValue)
 }
 
-func (m *Module) numericRules(numeric pgs.ProtoType, constraints *validate.FieldConstraints) *numericRules {
+func (m *Module) numericRules(numeric pgs.ProtoType, rules *validate.FieldRules) *numericRules {
 	m.Debug("numericRules")
 	var source proto.Message
 
 	switch numeric {
 	case pgs.DoubleT:
-		source = constraints.GetDouble()
+		source = rules.GetDouble()
 
 	case pgs.Fixed32T:
-		source = constraints.GetFixed32()
+		source = rules.GetFixed32()
 
 	case pgs.Fixed64T:
-		source = constraints.GetFixed64()
+		source = rules.GetFixed64()
 
 	case pgs.FloatT:
-		source = constraints.GetFloat()
+		source = rules.GetFloat()
 
 	case pgs.Int32T:
-		source = constraints.GetInt32()
+		source = rules.GetInt32()
 
 	case pgs.Int64T:
-		source = constraints.GetInt64()
+		source = rules.GetInt64()
 
 	case pgs.SFixed32:
-		source = constraints.GetSfixed32()
+		source = rules.GetSfixed32()
 
 	case pgs.SFixed64:
-		source = constraints.GetSfixed64()
+		source = rules.GetSfixed64()
 
 	case pgs.SInt32:
-		source = constraints.GetSint32()
+		source = rules.GetSint32()
 
 	case pgs.SInt64:
-		source = constraints.GetSint64()
+		source = rules.GetSint64()
 
 	case pgs.StringT:
-		source = constraints.GetString_()
+		source = rules.GetString()
 
 	case pgs.UInt32T:
-		source = constraints.GetUint32()
+		source = rules.GetUint32()
 
 	case pgs.UInt64T:
-		source = constraints.GetUint64()
+		source = rules.GetUint64()
 
 	default:
 		m.Failf("unknown numeric scalar type %q", numeric)

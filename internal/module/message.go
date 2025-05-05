@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Zenauth Ltd.
+// Copyright 2021-2025 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
 package module
@@ -50,36 +50,36 @@ func (m *Module) schemaForField(field pgs.Field) (jsonschema.Schema, bool) {
 	defer m.Pop()
 	m.Debug("schemaForField")
 
-	constraints := &validate.FieldConstraints{}
-	_, err := field.Extension(validate.E_Field, constraints)
-	m.CheckErr(err, "unable to read validation constraints from field")
+	rules := &validate.FieldRules{}
+	_, err := field.Extension(validate.E_Field, rules)
+	m.CheckErr(err, "unable to read validation rules from field")
 
-	required := constraints.GetRequired()
-	if constraints.GetIgnore() == validate.Ignore_IGNORE_IF_UNPOPULATED {
+	required := rules.GetRequired()
+	if rules.GetIgnore() == validate.Ignore_IGNORE_IF_UNPOPULATED {
 		required = false
 	}
 
 	var schema jsonschema.Schema
 	switch {
 	case field.Type().IsEmbed():
-		schema = m.schemaForEmbed(field.Type().Embed(), constraints)
+		schema = m.schemaForEmbed(field.Type().Embed(), rules)
 	case field.Type().IsEnum():
-		schema = m.schemaForEnum(field.Type().Enum(), constraints.GetEnum())
+		schema = m.schemaForEnum(field.Type().Enum(), rules.GetEnum())
 	case field.Type().IsMap():
-		schema = m.schemaForMap(field.Type().Element(), constraints.GetMap())
+		schema = m.schemaForMap(field.Type().Element(), rules.GetMap())
 	case field.Type().IsRepeated():
-		schema = m.schemaForRepeated(field.Type().Element(), constraints.GetRepeated())
+		schema = m.schemaForRepeated(field.Type().Element(), rules.GetRepeated())
 	default:
-		schema = m.schemaForScalar(field.Type().ProtoType(), constraints)
+		schema = m.schemaForScalar(field.Type().ProtoType(), rules)
 	}
 
 	return schema, required && !field.InOneOf()
 }
 
-func (m *Module) schemaForEmbed(embed pgs.Message, constraints *validate.FieldConstraints) jsonschema.Schema {
+func (m *Module) schemaForEmbed(embed pgs.Message, rules *validate.FieldRules) jsonschema.Schema {
 	m.Debug("schemaForEmbed")
 	if embed.IsWellKnown() {
-		return m.schemaForWellKnownType(embed.WellKnownType(), constraints)
+		return m.schemaForWellKnownType(embed.WellKnownType(), rules)
 	}
 
 	return m.schemaForMessage(embed)
@@ -92,11 +92,11 @@ func (m *Module) schemaForMessage(message pgs.Message) jsonschema.Schema {
 
 func (m *Module) schemaForOneOf(oneOf pgs.OneOf) jsonschema.NonTrivialSchema {
 	m.Debug("schemaForOneOf")
-	constraint := validate.OneofConstraints{}
-	_, err := oneOf.Extension(validate.E_Oneof, &constraint)
+	rules := validate.OneofRules{}
+	_, err := oneOf.Extension(validate.E_Oneof, &rules)
 	m.CheckErr(err, "unable to read oneOf option")
 
-	if constraint.Required == nil || !*constraint.Required {
+	if rules.Required == nil || !*rules.Required {
 		return nil
 	}
 

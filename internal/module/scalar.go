@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Zenauth Ltd.
+// Copyright 2021-2025 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
 package module
@@ -16,19 +16,19 @@ import (
 	"github.com/cerbos/protoc-gen-jsonschema/internal/jsonschema"
 )
 
-func (m *Module) schemaForScalar(scalar pgs.ProtoType, constraints *validate.FieldConstraints) jsonschema.Schema {
+func (m *Module) schemaForScalar(scalar pgs.ProtoType, rules *validate.FieldRules) jsonschema.Schema {
 	m.Debug("schemaForScalar")
 	if scalar.IsNumeric() {
-		return m.schemaForNumericScalar(scalar, constraints)
+		return m.schemaForNumericScalar(scalar, rules)
 	}
 
 	switch scalar {
 	case pgs.BoolT:
-		return m.schemaForBool(constraints.GetBool())
+		return m.schemaForBool(rules.GetBool())
 	case pgs.BytesT:
 		return m.schemaForBytes()
 	case pgs.StringT:
-		return m.schemaForString(constraints.GetString_())
+		return m.schemaForString(rules.GetString())
 	default:
 		m.Failf("unexpected scalar type %q", scalar)
 		return nil

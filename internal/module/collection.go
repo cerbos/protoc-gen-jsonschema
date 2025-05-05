@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Zenauth Ltd.
+// Copyright 2021-2025 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
 package module
@@ -16,8 +16,8 @@ func (m *Module) schemaForMap(value pgs.FieldTypeElem, rules *validate.MapRules)
 	schema.AdditionalProperties = m.schemaForElement(value, rules.GetValues())
 
 	if rules != nil {
-		if rules.GetKeys().GetString_() != nil {
-			schema.PropertyNames = m.schemaForString(rules.GetKeys().GetString_())
+		if rules.GetKeys().GetString() != nil {
+			schema.PropertyNames = m.schemaForString(rules.GetKeys().GetString())
 		}
 
 		if rules.MaxPairs != nil {
@@ -54,15 +54,15 @@ func (m *Module) schemaForRepeated(item pgs.FieldTypeElem, rules *validate.Repea
 	return schema
 }
 
-func (m *Module) schemaForElement(element pgs.FieldTypeElem, constraints *validate.FieldConstraints) jsonschema.Schema {
+func (m *Module) schemaForElement(element pgs.FieldTypeElem, rules *validate.FieldRules) jsonschema.Schema {
 	m.Debug("schemaForElement")
 	if element.IsEmbed() {
-		return m.schemaForEmbed(element.Embed(), constraints)
+		return m.schemaForEmbed(element.Embed(), rules)
 	}
 
 	if element.IsEnum() {
-		return m.schemaForEnum(element.Enum(), constraints.GetEnum())
+		return m.schemaForEnum(element.Enum(), rules.GetEnum())
 	}
 
-	return m.schemaForScalar(element.ProtoType(), constraints)
+	return m.schemaForScalar(element.ProtoType(), rules)
 }
