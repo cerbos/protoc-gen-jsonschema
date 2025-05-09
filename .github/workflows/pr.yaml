@@ -17,11 +17,14 @@ jobs:
           go-version: 1.23.4
           check-latest: true
 
+      - name: Install just
+        uses: extractions/setup-just@v3
+
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Build
-        run: make deps compile
+        run: just deps compile
 
       - name: Check undetected changes
         run: |-
@@ -50,4 +53,4 @@ jobs:
           fi
 
       - name: Test
-        run: make test
+        run: just tests
