@@ -1,5 +1,7 @@
 set dotenv-load := true
 
+test_dir := join("internal", "test")
+testdata_dir := join(test_dir, "testdata")
 tools_mod_dir := join(justfile_directory(), "tools")
 
 export TOOLS_BIN_DIR := join(env_var_or_default("XDG_CACHE_HOME", join(env_var("HOME"), ".cache")), "cerbos/protoc-gen-jsonschema/bin")
@@ -15,8 +17,8 @@ deps:
 
 # Run after testproto package is modified to generate new testdata
 generate-testdata: _buf
-	@ rm -rf $(TESTDATA_DIR)/code_generator_request.pb.bin
-	@ cd $(TEST_DIR) && $(BUF) generate .
+	@ rm -rf {{ testdata_dir }}/code_generator_request.pb.bin
+	@ cd {{ test_dir }} && "${TOOLS_BIN_DIR}/buf" generate .
 
 lint: _golangcilint _buf
     @ "${TOOLS_BIN_DIR}/golangci-lint" run --config=.golangci.yaml --fix
