@@ -8,20 +8,40 @@ on:
 
 jobs:
   lint:
-    name: Lint
+    name: Build, Lint and Test
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.21.x
-          cache: false
-      - uses: actions/checkout@v3
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+          go-version: 1.23.4
+          check-latest: true
+
+      - name: Install just
+        uses: extractions/setup-just@v3
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: just deps compile
+
+      - name: Check undetected changes
+        run: |-
+          REPO_STATUS="$(git status --porcelain)"
+          if [[ ! -z $REPO_STATUS ]]; then
+            echo "::error::Uncommitted changes detected"
+            echo "$REPO_STATUS"
+            git status -vv
+            exit 1
+          fi
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v7
         with:
           version: latest
-          args: '--config=.golangci.yaml -v'
+          args: "--config=.golangci.yaml --fix"
+
       - name: Check undetected changes
         run: |-
           REPO_STATUS="$(git status --porcelain)"
@@ -32,35 +52,5 @@ jobs:
             exit 1
           fi
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.21.x
-      - uses: actions/checkout@v3
-      - name: Run make test
-        run: make test
-
-  compile:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.21.x
-      - uses: actions/checkout@v3
-      - name: Run make deps compile test install
-        run: make deps compile test install
-      - name: Check undetected changes
-        run: |-
-          REPO_STATUS="$(git status --porcelain)"
-          if [[ ! -z $REPO_STATUS ]]; then
-            echo "::error::Uncommitted changes detected"
-            echo "$REPO_STATUS"
-            git status -vv
-            exit 1
-          fi
+      - name: Test
+        run: just tests

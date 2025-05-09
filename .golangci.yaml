@@ -1,59 +1,30 @@
 ---
-linters-settings:
-  exhaustive:
-    default-signifies-exhaustive: true
-
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/cerbos/protoc-gen-jsonschema)
-
-  gofumpt:
-    extra-rules: true
-
-  govet:
-    enable-all: true
-    disable:
-      - shadow
-
-  nolintlint:
-    allow-unused: false
-    require-specific: true
-
-  tagliatelle:
-    case:
-      rules:
-        json: goCamel
-        yaml: goCamel
-        xml: goCamel
-        bson: goCamel
+version: "2"
+run:
+  build-tags:
+    - tests
 
 linters:
   enable:
+    - asasalint
     - asciicheck
     - bidichk
     - bodyclose
-    - copyloopvar
     - dupl
     - durationcheck
     - errorlint
     - exhaustive
     - forbidigo
     - forcetypeassert
-    - gci
+    - gocheckcompilerdirectives
     - goconst
     - gocritic
     - godot
-    - gofumpt
-    - goimports
-    - gomoddirectives
+    - goheader
     - gosec
-    - govet
     - importas
     - makezero
     - misspell
-    - mnd
     - nakedret
     - nestif
     - nilerr
@@ -62,46 +33,100 @@ linters:
     - prealloc
     - predeclared
     - promlinter
+    - reassign
     - revive
     - rowserrcheck
     - sqlclosecheck
+    - staticcheck
     - tagliatelle
-    - tenv
     - thelper
     - tparallel
     - unconvert
     - unparam
+    - usetesting
     - wastedassign
     - whitespace
-  disable:
-    - cyclop
-    - depguard
-    - dogsled
-    - funlen
-    - gochecknoglobals
-    - gochecknoinits
-    - gocognit
-    - gocyclo
-    - godox
-    - gofmt
-    - goheader
-    - gomodguard
-    - goprintffuncname
-    - lll
-    - nlreturn
-    - paralleltest
-    - stylecheck
-    - testpackage
-    - wrapcheck
-    - wsl
+
+  settings:
+    exhaustive:
+      default-signifies-exhaustive: true
+
+    goheader:
+      values:
+        const:
+          COMPANY: Zenauth Ltd.
+      template: |-
+        Copyright {{ YEAR-RANGE }} {{ COMPANY }}
+        SPDX-License-Identifier: Apache-2.0
+
+    govet:
+      disable:
+        - shadow
+      enable-all: true
+
+    nolintlint:
+      require-specific: true
+      allow-unused: false
+
+    tagliatelle:
+      case:
+        rules:
+          bson: goCamel
+          json: goCamel
+          xml: goCamel
+          yaml: goCamel
+
+    usetesting:
+      os-setenv: true
+
+  exclusions:
+    generated: lax
+
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+
+    rules:
+      - linters:
+          - dupl
+          - forcetypeassert
+          - goconst
+          - govet
+          - mnd
+          - unparam
+        path: _test\.go
+
+    paths:
+      - ^bin/
+      - ^tools/
 
 issues:
   max-same-issues: 30
 
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - forcetypeassert
-        - goconst
-        - govet
-        - mnd
+formatters:
+  enable:
+    - gci
+    - gofumpt
+    - goimports
+
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/cerbos/protoc-gen-jsonschema)
+        - blank
+        - dot
+      custom-order: true
+
+    gofumpt:
+      extra-rules: true
+
+  exclusions:
+    generated: lax
+
+    paths:
+      - ^bin/
+      - ^tools/

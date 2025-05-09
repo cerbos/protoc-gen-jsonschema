@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Zenauth Ltd.
+// Copyright 2021-2025 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
 package module
@@ -100,39 +100,39 @@ func (m *Module) defineValue() jsonschema.Schema {
 	}
 }
 
-func (m *Module) schemaForWellKnownType(name pgs.WellKnownType, constraints *validate.FieldConstraints) jsonschema.Schema {
+func (m *Module) schemaForWellKnownType(name pgs.WellKnownType, rules *validate.FieldRules) jsonschema.Schema {
 	m.Debug("schemaForWellKnownType")
 	switch name {
 	case pgs.AnyWKT:
-		return m.schemaForAny(constraints.GetAny())
+		return m.schemaForAny(rules.GetAny())
 	case pgs.BoolValueWKT:
-		return m.schemaForBool(constraints.GetBool())
+		return m.schemaForBool(rules.GetBool())
 	case pgs.BytesValueWKT:
 		return m.schemaForBytes()
 	case pgs.DoubleValueWKT:
-		return m.schemaForNumericScalar(pgs.DoubleT, constraints)
+		return m.schemaForNumericScalar(pgs.DoubleT, rules)
 	case pgs.DurationWKT:
-		return m.schemaForDuration(constraints.GetDuration())
+		return m.schemaForDuration(rules.GetDuration())
 	case pgs.EmptyWKT:
 		return m.ref(wellKnownTypeEmpty, m.defineEmpty)
 	case pgs.FloatValueWKT:
-		return m.schemaForNumericScalar(pgs.FloatT, constraints)
+		return m.schemaForNumericScalar(pgs.FloatT, rules)
 	case pgs.Int32ValueWKT:
-		return m.schemaForNumericScalar(pgs.Int32T, constraints)
+		return m.schemaForNumericScalar(pgs.Int32T, rules)
 	case pgs.Int64ValueWKT:
-		return m.schemaForNumericScalar(pgs.Int64T, constraints)
+		return m.schemaForNumericScalar(pgs.Int64T, rules)
 	case pgs.ListValueWKT:
 		return m.ref(wellKnownTypeListValue, m.defineListValue)
 	case pgs.StringValueWKT:
-		return m.schemaForString(constraints.GetString_())
+		return m.schemaForString(rules.GetString())
 	case pgs.StructWKT:
 		return m.ref(wellKnownTypeStruct, m.defineStruct)
 	case pgs.TimestampWKT:
-		return m.schemaForTimestamp(constraints.GetTimestamp())
+		return m.schemaForTimestamp(rules.GetTimestamp())
 	case pgs.UInt32ValueWKT:
-		return m.schemaForNumericScalar(pgs.UInt32T, constraints)
+		return m.schemaForNumericScalar(pgs.UInt32T, rules)
 	case pgs.UInt64ValueWKT:
-		return m.schemaForNumericScalar(pgs.UInt64T, constraints)
+		return m.schemaForNumericScalar(pgs.UInt64T, rules)
 	case pgs.ValueWKT:
 		return m.ref(wellKnownTypeValue, m.defineValue)
 	default:
