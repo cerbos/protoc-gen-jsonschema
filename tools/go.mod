@@ -3,9 +3,9 @@ module github.com/cerbos/protoc-gen-jsonschema/tools
 go 1.23.4
 
 require (
-	github.com/bufbuild/buf v1.54.0
-	github.com/golangci/golangci-lint/v2 v2.1.6
-	gotest.tools/gotestsum v1.12.2
+	github.com/bufbuild/buf v1.55.1
+	github.com/golangci/golangci-lint/v2 v2.2.1
+	gotest.tools/gotestsum v1.12.3
 )
 
 require (
