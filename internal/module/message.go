@@ -55,7 +55,7 @@ func (m *Module) schemaForField(field pgs.Field) (jsonschema.Schema, bool) {
 	m.CheckErr(err, "unable to read validation rules from field")
 
 	required := rules.GetRequired()
-	if rules.GetIgnore() == validate.Ignore_IGNORE_IF_UNPOPULATED {
+	if rules.GetIgnore() == validate.Ignore_IGNORE_IF_ZERO_VALUE {
 		required = false
 	}
 
