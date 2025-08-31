@@ -12,6 +12,6 @@ import (
 )
 
 func main() {
-	supportedFeatures := uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL | pluginpb.CodeGeneratorResponse_FEATURE_SUPPORTS_EDITIONS)
+	supportedFeatures := uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
 	pgs.Init(pgs.SupportedFeatures(&supportedFeatures), pgs.DebugEnv(common.DebugEnv)).RegisterModule(module.New()).Render()
 }
