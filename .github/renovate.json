@@ -1,35 +1,36 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    "group:allNonMajor",
-    "schedule:monthly",
-    ":automergeDisabled",
-    ":combinePatchMinorReleases",
-    ":gitSignOff",
-    ":renovatePrefix",
-    ":semanticCommitTypeAll(chore)",
-    ":separateMultipleMajorReleases"
-  ],
-  "packageRules": [
-    {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "groupName": "GitHub Actions deps",
-      "groupSlug": "gh-actions-deps"
-    },
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "groupName": "Go deps",
-      "groupSlug": "go-deps"
-    }
-  ],
-  "labels": [
-    "area/deps",
-    "bots",
-    "kind/chore"
-  ]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        "group:allNonMajor",
+        "helpers:pinGitHubActionDigests",
+        "schedule:monthly",
+        ":automergeDisabled",
+        ":combinePatchMinorReleases",
+        ":gitSignOff",
+        ":renovatePrefix",
+        ":semanticCommitTypeAll(chore)",
+        ":separateMultipleMajorReleases"
+    ],
+    "packageRules": [
+        {
+            "matchManagers": [
+                "github-actions"
+            ],
+            "groupName": "GitHub Actions deps",
+            "groupSlug": "gh-actions-deps"
+        },
+        {
+            "matchManagers": [
+                "gomod"
+            ],
+            "groupName": "Go deps",
+            "groupSlug": "go-deps"
+        }
+    ],
+    "labels": [
+        "area/deps",
+        "bots",
+        "kind/chore"
+    ]
 }
