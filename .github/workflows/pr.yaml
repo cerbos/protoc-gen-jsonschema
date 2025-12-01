@@ -17,8 +17,10 @@ jobs:
           go-version: 1.25.4
           check-latest: true
 
-      - name: Install just
-        uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3
+      - name: Set up just
+        uses: extractions/setup-crate@4993624604c307fbca528d28a3c8b60fa5ecc859 # v1
+        with:
+          repo: casey/just
 
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
