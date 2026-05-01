@@ -3,7 +3,7 @@ module github.com/cerbos/protoc-gen-jsonschema
 go 1.23.4
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
 	github.com/lyft/protoc-gen-star/v2 v2.0.4
 	github.com/stretchr/testify v1.11.1
 	google.golang.org/protobuf v1.36.11
